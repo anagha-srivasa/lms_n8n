@@ -19,8 +19,7 @@ The core artificial intelligence processing is managed by a custom n8n workflow.
 
 ## n8n Project Configuration
 
-The complete n8n workflow utilized in this project can be viewed and imported via the following link:
-**[Insert n8n Cloud / Workflow URL Here]**
+The complete n8n workflow utilized in this project is uploaded as json file.
 
 *(Note for local implementation: Copy the raw workflow JSON from `workflow.json` within this repository and import it directly into your n8n workspace).*
 
