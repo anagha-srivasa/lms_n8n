@@ -1,0 +1,135 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evaluate-performance",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fd5e811a-9738-49e9-9e3e-b4b8dbbc74ff",
+      "name": "Webhook",
+      "webhookId": "b1ed0cdd-1fab-4bc5-8853-942bc97c78b6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://10.24.119.210:1234/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"qwen/qwen3.5-9b\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.body.task_type === 'doubt_solving' ? 'Solve the following doubt in ' + $json.body.subject + ': ' + $json.body.doubt : ($json.body.task_type === 'assessment' ? 'Create a personalized assessment for ' + $json.body.subject + '.' : 'Generate study material for ' + $json.body.subject + '.') }} Student learning rate: {{ $json.body.learning_rate }}. ILM chat summary: {{ $json.body.summary }}. Reference textbook content: {{ $json.body.rag_context }}\"\n    }\n  ],\n  \"max_tokens\": 2048,\n  \"temperature\": 0.7\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "1b4988b1-7cbf-42fe-8582-617fa6a1aa0e",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ce4f1b5b-6140-4132-9566-a4231b98ff61",
+              "name": "llm_response",
+              "value": "={{ $json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "0c8d3d1f-aa45-4316-a373-a0c162bfbcf4",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"response\": $json.llm_response } }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "dcab7240-a9dc-433c-ab3d-a57e8a5cc994",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "1ff1b7d3-d3f7-42b3-b3bb-8b7099029cbc",
+  "meta": {
+    "instanceId": "5bf6e0fa290ebd635813dda8b1c194a108449497045136744b247b41bae6b3ea"
+  },
+  "id": "3HO40ZMk5XUUqhLk",
+  "tags": []
+}
